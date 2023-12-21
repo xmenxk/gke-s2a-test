@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gke-s2a-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gke-s2a-test
+  template:
+    metadata:
+      labels:
+        app: gke-s2a-test
+    spec:
+      serviceAccountName: default
+      nodeSelector:
+        iam.gke.io/gke-metadata-server-enabled: "true"
+      containers:
+        - name: gke-s2a-test-app
+          image: us-central1-docker.pkg.dev/xmenxk-gke-dev/gke-s2a-test-app-repo/gke-s2a-test-app:latest
+          # This app listens on port 8080 for web traffic by default.
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: GRPC_GO_LOG_SEVERITY_LEVEL
+              value: "info"
+            - name: GRPC_GO_LOG_VERBOSITY_LEVEL
+              value: "99"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+              ephemeral-storage: "1Gi"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+              ephemeral-storage: "1Gi"
